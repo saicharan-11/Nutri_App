@@ -81,7 +81,14 @@ if uploaded_file is not None:
         
         # Predict disease suitability
         y_pred = loaded_model.predict(X_new)
+
+        # Convert predictions to "Suitable" or "Not Suitable"
+        suitability_labels = ["Not Suitable", "Suitable"]
         predictions = pd.DataFrame(y_pred, columns=["Diabetes", "Hypertension", "Heart Disease", "Kidney Disease"])
+        
+        # Map 0/1 to "Not Suitable"/"Suitable"
+        for column in predictions.columns:
+            predictions[column] = predictions[column].apply(lambda x: suitability_labels[int(round(x))])
         
         st.write("**Disease Suitability Predictions:**")
         st.dataframe(predictions)
