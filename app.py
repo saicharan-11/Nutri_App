@@ -10,22 +10,22 @@ from tensorflow.keras.applications.efficientnet import preprocess_input
 @st.cache_resource
 def load_models_and_data():
     # Load the Keras model
-    keras_model = load_model(r"/kaggle/input/nutri_model/keras/default/1/final_model.keras")
+    keras_model = load_model(r"final_model.keras")
     
     # Load the LabelEncoder
-    with open(r"/kaggle/input/labelencoder/scikitlearn/default/1/label_encoder.pkl", "rb") as file:
+    with open(r"label_encoder.pkl", "rb") as file:
         label_encoder = pickle.load(file)
     
     # Load the Random Forest model
-    with open(r"/kaggle/input/disease_model/scikitlearn/default/1/random_forest_model.pkl", "rb") as file:
+    with open(r"random_forest_model.pkl", "rb") as file:
         rf_model = pickle.load(file)
     
     # Load the class labels
-    with open(r"/kaggle/input/class_labels/scikitlearn/default/1/classes_list.pkl", "rb") as file:
+    with open(r"classes_list.pkl", "rb") as file:
         class_labels = pickle.load(file)
     
     # Load the nutritional data
-    with open(r"/kaggle/input/nutri_data/scikitlearn/default/1/unique_nutri_data.pkl", "rb") as file:
+    with open(r"unique_nutri_data.pkl", "rb") as file:
         nutri_data = pickle.load(file)
     
     return keras_model, label_encoder, rf_model, class_labels, nutri_data
