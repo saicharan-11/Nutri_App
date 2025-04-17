@@ -72,7 +72,7 @@ if uploaded_file is not None:
         
         # Display scaled nutritional information
         st.write("**Nutritional Information (scaled):**")
-        st.dataframe(scaled_df[["weight", "calories", "protein", "carbohydrates", "fats", "fiber", "sugars", "sodium"]])
+        st.dataframe(scaled_df[["weight", "calories", "protein", "carbohydrates", "fats", "fiber", "sugars", "sodium"]].style.hide_index())
         
         # Encode the label and prepare features for disease prediction
         scaled_df["label_encoded"] = loaded_encoder.transform(scaled_df["label"])
@@ -91,4 +91,4 @@ if uploaded_file is not None:
             predictions[column] = predictions[column].apply(lambda x: suitability_labels[int(round(x))])
         
         st.write("**Disease Suitability Predictions:**")
-        st.dataframe(predictions)
+        st.dataframe(predictions.style.hide_index())
