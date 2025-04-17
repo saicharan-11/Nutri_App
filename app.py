@@ -34,7 +34,7 @@ def load_models_and_data():
 model, loaded_encoder, loaded_model, class_labels, nutri_data = load_models_and_data()
 
 # Streamlit UI
-st.title("Food Image Classification and Nutritional Analysis")
+st.title("Nutritional Analysis")
 
 # Upload an image
 uploaded_file = st.file_uploader("Upload an image of food", type=["jpg", "jpeg", "png"])
@@ -52,43 +52,47 @@ if uploaded_file is not None:
     # Predict the class
     predictions = model.predict(img_array)
     predicted_class_index = np.argmax(predictions, axis=1)[0]
-    predicted_class_label = class_labels[predicted_class_index]
-    
-    st.write(f"**Predicted Class:** {predicted_class_label}")
-    
-    # Get nutritional information
-    nutri_info = nutri_data[nutri_data['label'] == predicted_class_label]
-    
-    if nutri_info.empty:
-        st.write("No nutritional information available for this food item.")
-    else:
-        # Input desired weight
-        desired_weight = st.number_input("Enter desired weight (in grams):", min_value=1, value=100)
-        scale_factor = desired_weight / nutri_info["weight"].values[0]
-        scaled_df = nutri_info.copy()
-        columns_to_scale = ["calories", "protein", "carbohydrates", "fats", "fiber", "sugars", "sodium"]
-        scaled_df[columns_to_scale] = np.ceil(nutri_info[columns_to_scale] * scale_factor)
-        scaled_df["weight"] = desired_weight
-        
-        # Display scaled nutritional information
-        st.write("**Nutritional Information (scaled):**")
-        st.dataframe(scaled_df[["weight", "calories", "protein", "carbohydrates", "fats", "fiber", "sugars", "sodium"]].reset_index(drop=True))
-        
-        # Encode the label and prepare features for disease prediction
-        scaled_df["label_encoded"] = loaded_encoder.transform(scaled_df["label"])
-        features = ["weight", "calories", "protein", "carbohydrates", "fats", "fiber", "sugars", "sodium", "label_encoded"]
-        X_new = scaled_df[features]
-        
-        # Predict disease suitability
-        y_pred = loaded_model.predict(X_new)
+    confidence = predictions[0][predicted_class_index]  # Get the confidence of the predicted class
 
-        # Convert predictions to "Suitable" or "Not Suitable"
-        suitability_labels = ["Not Suitable", "Suitable"]
-        predictions = pd.DataFrame(y_pred, columns=["Diabetes", "Hypertension", "Heart Disease", "Kidney Disease"])
+    if confidence >= 0.4:
+        predicted_class_label = class_labels[predicted_class_index]
+        st.write(f"**Prediction:** {predicted_class_label}")
         
-        # Map 0/1 to "Not Suitable"/"Suitable"
-        for column in predictions.columns:
-            predictions[column] = predictions[column].apply(lambda x: suitability_labels[int(round(x))])
+        # Get nutritional information
+        nutri_info = nutri_data[nutri_data['label'] == predicted_class_label]
         
-        st.write("**Disease Suitability Predictions:**")
-        st.dataframe(predictions.reset_index(drop=True))
+        if nutri_info.empty:
+            st.write("No nutritional information available for this food item.")
+        else:
+            # Input desired weight
+            desired_weight = st.number_input("Enter desired weight (in grams):", min_value=1, value=100)
+            scale_factor = desired_weight / nutri_info["weight"].values[0]
+            scaled_df = nutri_info.copy()
+            columns_to_scale = ["calories", "protein", "carbohydrates", "fats", "fiber", "sugars", "sodium"]
+            scaled_df[columns_to_scale] = np.ceil(nutri_info[columns_to_scale] * scale_factor)
+            scaled_df["weight"] = desired_weight
+            
+            # Display scaled nutritional information
+            st.write("**Nutritional Information (scaled):**")
+            st.dataframe(scaled_df[["weight", "calories", "protein", "carbohydrates", "fats", "fiber", "sugars", "sodium"]].reset_index(drop=True))
+            
+            # Encode the label and prepare features for disease prediction
+            scaled_df["label_encoded"] = loaded_encoder.transform(scaled_df["label"])
+            features = ["weight", "calories", "protein", "carbohydrates", "fats", "fiber", "sugars", "sodium", "label_encoded"]
+            X_new = scaled_df[features]
+            
+            # Predict disease suitability
+            y_pred = loaded_model.predict(X_new)
+
+            # Convert predictions to "Suitable" or "Not Suitable"
+            suitability_labels = ["Not Suitable", "Suitable"]
+            predictions = pd.DataFrame(y_pred, columns=["Diabetes", "Hypertension", "Heart Disease", "Kidney Disease"])
+            
+            # Map 0/1 to "Not Suitable"/"Suitable"
+            for column in predictions.columns:
+                predictions[column] = predictions[column].apply(lambda x: suitability_labels[int(round(x))])
+            
+            st.write("**Suitability Prediction:**")
+            st.dataframe(predictions.reset_index(drop=True))
+    else:
+        st.write("**Sorry, the model is not confident enough to classify this image.**")
