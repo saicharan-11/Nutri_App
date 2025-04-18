@@ -34,7 +34,7 @@ def load_models_and_data():
 model, loaded_encoder, loaded_model, class_labels, nutri_data = load_models_and_data()
 
 # Streamlit UI
-st.title("Nutritional Analysis")
+st.title("Food Classification and Nutrition-Based Disease Suitability Prediction")
 
 # Upload an image
 uploaded_file = st.file_uploader("Upload an image of food", type=["jpg", "jpeg", "png"])
