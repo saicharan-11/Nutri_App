@@ -73,7 +73,7 @@ if uploaded_file is not None:
             scaled_df["weight"] = desired_weight
             
             # Display scaled nutritional information
-            st.write("**Nutritional Information (scaled):**")
+            st.write("**Nutritional Information:**")
             st.dataframe(scaled_df[["weight", "calories", "protein", "carbohydrates", "fats", "fiber", "sugars", "sodium"]].reset_index(drop=True))
             
             # Encode the label and prepare features for disease prediction
